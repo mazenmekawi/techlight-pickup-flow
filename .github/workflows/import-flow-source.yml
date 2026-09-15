@@ -1,8 +1,8 @@
-name: Import verified Flow source
+name: Import verified Pickup Flow source
 on:
   push:
     branches: [main]
-    paths: ['.github/source-import/READY.json']
+    paths: ['.github/workflows/import-flow-source.yml']
 permissions:
   contents: write
 concurrency:
@@ -10,64 +10,80 @@ concurrency:
   cancel-in-progress: false
 jobs:
   import:
+    if: github.repository == 'mazenmekawi/techlight-pickup-flow'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Restore and verify every original source file
+      - name: Import original source and verify every file
         env:
-          EXPECTED_PROJECT: pickup
-          EXPECTED_PAYLOAD_SHA256: 406442a63b5b0372d7ba42372a648efbf64e4083681bee169a20862839c73431
-          EXPECTED_FILE_COUNT: '39'
-          SOURCE_ZIP_SHA256: 62dd3f91b8cb8c78724cc30c3fb255b83b8180231abbec60a32440ddcd06ad21
+          SOURCE_URL: 'https://sdmntprindiasocentral.oaiusercontent.com/files/00000000-26c8-8211-a86d-d9964896b67a/raw?se=2026-09-15T13%3A17%3A33Z&sp=r&sv=2026-02-06&sr=b&scid=6fd7d102-4d29-5ba7-960c-9ed1b175a3be&skoid=e5f84a89-964a-4fd3-92c2-c2cb3a12ea16&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-15T06%3A50%3A54Z&ske=2026-09-16T06%3A50%3A54Z&sks=b&skv=2026-02-06&sig=Soie1DtyFW304ez1INtPTZavIbhqGMgjddITZVMlrzI%3D'
         shell: python
         run: |
-          import base64, hashlib, io, json, lzma, os, pathlib, shutil, subprocess, tarfile
+          import hashlib, io, json, os, pathlib, subprocess, urllib.request, zipfile
           root = pathlib.Path.cwd()
-          staging = root / '.github/source-import'
-          manifest = json.loads((staging / 'READY.json').read_text())
-          assert manifest['project'] == os.environ['EXPECTED_PROJECT']
-          assert manifest['file_count'] == int(os.environ['EXPECTED_FILE_COUNT'])
-          encoded = ''.join((staging / ('part-%02d.txt' % i)).read_text().strip() for i in range(manifest['parts']))
-          packed = base64.b64decode(encoded, validate=True)
-          digest = hashlib.sha256(packed).hexdigest()
-          assert digest == os.environ['EXPECTED_PAYLOAD_SHA256'] == manifest['payload_sha256'], 'Transfer checksum mismatch'
-          restored = {}
-          with tarfile.open(fileobj=io.BytesIO(lzma.decompress(packed)), mode='r:') as archive:
-              for member in archive.getmembers():
-                  path = pathlib.PurePosixPath(member.name)
-                  assert member.isfile() and not path.is_absolute()
-                  assert '..' not in path.parts and path.parts[0] not in ('.git', '.github')
-                  assert member.name not in restored and member.size < 2000000
-                  data = archive.extractfile(member).read()
-                  assert hashlib.sha256(data).hexdigest() == manifest['files'][member.name]
-                  restored[member.name] = data
-          assert set(restored) == set(manifest['files'])
-          assert len(restored) == int(os.environ['EXPECTED_FILE_COUNT'])
           tracked = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
-          unexpected = [p for p in tracked if p and p != 'README.md' and not p.startswith('.github/source-import/') and p != '.github/workflows/import-flow-source.yml']
-          assert not unexpected, 'Repository already contains other files; refusing to overwrite'
-          for name, data in sorted(restored.items()):
-              destination = root / name
-              destination.parent.mkdir(parents=True, exist_ok=True)
-              destination.write_bytes(data)
-              assert hashlib.sha256(destination.read_bytes()).hexdigest() == manifest['files'][name]
-          readme = root / 'README.md'
-          assert readme.read_text().strip() == '# techlight-pickup-flow'
-          readme.write_text('# TechLight Pickup Flow 1.1.0\n\nIndependent Android customer pickup display project.\n\nApplication ID: `sa.techlight.pickup.flow`.\n\n## Source and setup\n\nOpen this repository folder in Android Studio. See [README-AR.txt](README-AR.txt) for Arabic setup instructions, [VALIDATION.txt](VALIDATION.txt) for validation limits, and [SOURCE-ORIGIN.json](SOURCE-ORIGIN.json) for provenance. All 39 original source-project files were imported byte-for-byte from the separately delivered archive. No private signing key is included. This upload does not claim a new APK build or live TechPro validation.\n\nCompanion project: https://github.com/mazenmekawi/techlight-kitchen-flow\n', encoding='utf-8')
-          verification = {'project': 'Pickup Flow', 'version': '1.1.0', 'source_zip_sha256': os.environ['SOURCE_ZIP_SHA256'], 'source_files_verified': len(restored), 'original_files_sha256': manifest['files'], 'new_apk_built': False}
-          (root / 'SOURCE-UPLOAD-VERIFICATION.json').write_text(json.dumps(verification, indent=2, ensure_ascii=False) + '\n')
-          shutil.rmtree(staging)
-          print('Verified %d original files byte-for-byte; ready to commit.' % len(restored))
-      - name: Commit source files to this repository only
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git diff --cached --stat
-          git commit -m 'Import Pickup Flow 1.1.0: 39 byte-verified source files'
-          git push origin HEAD:main
+          allowed = {'README.md', '.github/workflows/import-flow-source.yml'}
+          assert not [p for p in tracked if p and p not in allowed], 'Unexpected existing project files; stopping without overwrite'
+          assert (root/'README.md').read_text().strip() == '# techlight-pickup-flow', 'Existing README changed; stopping'
+          with urllib.request.urlopen(os.environ['SOURCE_URL'], timeout=60) as response:
+              payload = response.read(2000001)
+          assert hashlib.sha256(payload).hexdigest() == 'afd2074abc14d920688262649e6b1ce9cfe8ba1d373b44f2f020fc095dd43c80', 'Transfer checksum mismatch'
+          source_name = 'TechLight-Pickup-Flow-v1.1.0-Source.zip'
+          with zipfile.ZipFile(io.BytesIO(payload)) as transfer:
+              source_bytes = transfer.read('TechLight-GitHub-Upload/sources/' + source_name)
+          archive_sha = hashlib.sha256(source_bytes).hexdigest()
+          assert archive_sha == '62dd3f91b8cb8c78724cc30c3fb255b83b8180231abbec60a32440ddcd06ad21'
+          files = {}
+          with zipfile.ZipFile(io.BytesIO(source_bytes)) as source:
+              assert source.testzip() is None
+              for item in source.infolist():
+                  if item.is_dir():
+                      continue
+                  assert item.filename.startswith('TechLight-Pickup-Flow-v1.1.0/')
+                  name = item.filename.split('/', 1)[1]
+                  path = pathlib.PurePosixPath(name)
+                  assert name and not path.is_absolute() and '..' not in path.parts
+                  assert path.parts[0] not in ('.git', '.github') and name not in files
+                  assert item.file_size < 2000000 and (item.external_attr >> 16) & 0o170000 != 0o120000
+                  files[name] = source.read(item)
+          assert len(files) == 39
+          expected = {}
+          for line in files['SHA256SUMS.txt'].decode('utf-8').splitlines():
+              if not line.strip():
+                  continue
+              digest, name = line.split(None, 1)
+              name = name.lstrip('* ')
+              if name.startswith('./'):
+                  name = name[2:]
+              expected[name] = digest
+          for name, digest in expected.items():
+              assert name in files and hashlib.sha256(files[name]).hexdigest() == digest, 'Source checksum mismatch: ' + name
+          records = []
+          for name, data in sorted(files.items()):
+              path = root/name
+              path.parent.mkdir(parents=True, exist_ok=True)
+              path.write_bytes(data)
+              assert path.read_bytes() == data
+              records.append({'path': name, 'size': len(data), 'sha256': hashlib.sha256(data).hexdigest(), 'git_blob_sha': hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()})
+          report = {'project': 'Pickup Flow', 'version': '1.1.0', 'application_id': 'sa.techlight.pickup.flow', 'source_archive': source_name, 'source_archive_sha256': archive_sha, 'source_files_verified': len(files), 'all_original_files_unchanged': True, 'new_apk_built': False, 'files': records}
+          report_name = 'SOURCE-UPLOAD-VERIFICATION.json'
+          (root/report_name).write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+          subprocess.check_call(['git', 'add', '-f', '--', *sorted(files), report_name])
+          staged = subprocess.check_output(['git', 'diff', '--cached', '--name-only', '-z']).decode().split('\0')
+          assert {p for p in staged if p} == set(files) | {report_name}
+          for record in records:
+              actual = subprocess.check_output(['git', 'rev-parse', ':'+record['path']], text=True).strip()
+              assert actual == record['git_blob_sha'], 'Git index changed source bytes: '+record['path']
+          subprocess.check_call(['git', 'config', 'user.name', 'github-actions[bot]'])
+          subprocess.check_call(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'])
+          subprocess.check_call(['git', 'commit', '-m', 'Import Pickup Flow 1.1.0: all 39 original project files verified'])
+          subprocess.check_call(['git', 'push', 'origin', 'HEAD:main'])
+          local = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          remote = subprocess.check_output(['git', 'ls-remote', 'origin', 'refs/heads/main'], text=True).split()[0]
+          assert local == remote, 'Remote commit did not match'
+          print('SUCCESS: 39 source files uploaded byte-for-byte to mazenmekawi/techlight-pickup-flow at '+local)
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('## Source upload verified\n\nPickup Flow 1.1.0: **39 original files**, all byte-identical.\n\nCommit: `'+local+'`\n\nThis is a source upload, not a new APK build.\n')
