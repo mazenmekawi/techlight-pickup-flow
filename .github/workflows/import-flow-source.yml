@@ -1,0 +1,73 @@
+name: Import verified Flow source
+on:
+  push:
+    branches: [main]
+    paths: ['.github/source-import/READY.json']
+permissions:
+  contents: write
+concurrency:
+  group: verified-source-import
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Restore and verify every original source file
+        env:
+          EXPECTED_PROJECT: pickup
+          EXPECTED_PAYLOAD_SHA256: 406442a63b5b0372d7ba42372a648efbf64e4083681bee169a20862839c73431
+          EXPECTED_FILE_COUNT: '39'
+          SOURCE_ZIP_SHA256: 62dd3f91b8cb8c78724cc30c3fb255b83b8180231abbec60a32440ddcd06ad21
+        shell: python
+        run: |
+          import base64, hashlib, io, json, lzma, os, pathlib, shutil, subprocess, tarfile
+          root = pathlib.Path.cwd()
+          staging = root / '.github/source-import'
+          manifest = json.loads((staging / 'READY.json').read_text())
+          assert manifest['project'] == os.environ['EXPECTED_PROJECT']
+          assert manifest['file_count'] == int(os.environ['EXPECTED_FILE_COUNT'])
+          encoded = ''.join((staging / ('part-%02d.txt' % i)).read_text().strip() for i in range(manifest['parts']))
+          packed = base64.b64decode(encoded, validate=True)
+          digest = hashlib.sha256(packed).hexdigest()
+          assert digest == os.environ['EXPECTED_PAYLOAD_SHA256'] == manifest['payload_sha256'], 'Transfer checksum mismatch'
+          restored = {}
+          with tarfile.open(fileobj=io.BytesIO(lzma.decompress(packed)), mode='r:') as archive:
+              for member in archive.getmembers():
+                  path = pathlib.PurePosixPath(member.name)
+                  assert member.isfile() and not path.is_absolute()
+                  assert '..' not in path.parts and path.parts[0] not in ('.git', '.github')
+                  assert member.name not in restored and member.size < 2000000
+                  data = archive.extractfile(member).read()
+                  assert hashlib.sha256(data).hexdigest() == manifest['files'][member.name]
+                  restored[member.name] = data
+          assert set(restored) == set(manifest['files'])
+          assert len(restored) == int(os.environ['EXPECTED_FILE_COUNT'])
+          tracked = subprocess.check_output(['git', 'ls-files', '-z']).decode().split('\0')
+          unexpected = [p for p in tracked if p and p != 'README.md' and not p.startswith('.github/source-import/') and p != '.github/workflows/import-flow-source.yml']
+          assert not unexpected, 'Repository already contains other files; refusing to overwrite'
+          for name, data in sorted(restored.items()):
+              destination = root / name
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              destination.write_bytes(data)
+              assert hashlib.sha256(destination.read_bytes()).hexdigest() == manifest['files'][name]
+          readme = root / 'README.md'
+          assert readme.read_text().strip() == '# techlight-pickup-flow'
+          readme.write_text('# TechLight Pickup Flow 1.1.0\n\nIndependent Android customer pickup display project.\n\nApplication ID: `sa.techlight.pickup.flow`.\n\n## Source and setup\n\nOpen this repository folder in Android Studio. See [README-AR.txt](README-AR.txt) for Arabic setup instructions, [VALIDATION.txt](VALIDATION.txt) for validation limits, and [SOURCE-ORIGIN.json](SOURCE-ORIGIN.json) for provenance. All 39 original source-project files were imported byte-for-byte from the separately delivered archive. No private signing key is included. This upload does not claim a new APK build or live TechPro validation.\n\nCompanion project: https://github.com/mazenmekawi/techlight-kitchen-flow\n', encoding='utf-8')
+          verification = {'project': 'Pickup Flow', 'version': '1.1.0', 'source_zip_sha256': os.environ['SOURCE_ZIP_SHA256'], 'source_files_verified': len(restored), 'original_files_sha256': manifest['files'], 'new_apk_built': False}
+          (root / 'SOURCE-UPLOAD-VERIFICATION.json').write_text(json.dumps(verification, indent=2, ensure_ascii=False) + '\n')
+          shutil.rmtree(staging)
+          print('Verified %d original files byte-for-byte; ready to commit.' % len(restored))
+      - name: Commit source files to this repository only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --stat
+          git commit -m 'Import Pickup Flow 1.1.0: 39 byte-verified source files'
+          git push origin HEAD:main
