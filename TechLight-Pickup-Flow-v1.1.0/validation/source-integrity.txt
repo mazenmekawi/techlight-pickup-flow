@@ -1,0 +1,4 @@
+PASS: all copied runtime Java, AndroidManifest and resources are byte-identical to original archive.
+Checked 18 source/resource files.
+PASS: all declared application/activity classes are included.
+PASS: one :app module; no source reference to the other standalone project.

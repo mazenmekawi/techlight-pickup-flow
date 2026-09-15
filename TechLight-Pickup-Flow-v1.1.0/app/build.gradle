@@ -1,0 +1,15 @@
+plugins { id 'com.android.application' }
+android {
+    sourceSets { test { java.srcDirs = ['../tests'] } }
+ namespace 'sa.techlight.kitchen'
+ compileSdk 35
+ defaultConfig { applicationId 'sa.techlight.pickup.flow'; minSdk 23; targetSdk 32; versionCode 110; versionName '1.1.0' }
+ compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+ buildTypes { release { minifyEnabled false } }
+}
+dependencies { implementation 'com.google.zxing:core:3.5.3' }
+
+// Same test library versions used by the original source test script.
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}

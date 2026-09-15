@@ -1,0 +1,14 @@
+Pickup Flow 1.1.0
+Application ID: sa.techlight.pickup.flow
+Java namespace: sa.techlight.kitchen (intentional original shared namespace)
+Launcher: PickupActivity
+
+Original runtime source files included:
+  app/src/main/java/sa/techlight/kitchen/KitchenSound.java
+  app/src/main/java/sa/techlight/kitchen/LinkCrypto.java
+  app/src/main/java/sa/techlight/kitchen/LinkStore.java
+  app/src/main/java/sa/techlight/kitchen/PickupActivity.java
+  app/src/main/java/sa/techlight/kitchen/Session.java
+  app/src/main/java/sa/techlight/kitchen/Ui.java
+
+All listed runtime Java file contents are unchanged from the combined Flow source.

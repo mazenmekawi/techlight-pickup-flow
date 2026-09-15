@@ -1,0 +1,3 @@
+Resource linking and R.java generation
+
+Exit: 0

@@ -1,0 +1,100 @@
+{
+  "source_archive": "TechLight-Flow-v6.9.1-Source.zip",
+  "source_archive_sha256": "0e4e56b1247205eb18d2fddc6981383bd2cd3c227e8b60760e8ae26d3e11782c",
+  "app": "Pickup Flow",
+  "version": "1.1.0",
+  "application_id": "sa.techlight.pickup.flow",
+  "runtime_sources_modified": false,
+  "files": [
+    {
+      "path": "app/src/main/java/sa/techlight/kitchen/KitchenSound.java",
+      "original_path": "app/src/main/java/sa/techlight/kitchen/KitchenSound.java",
+      "sha256": "00432843a0dc0b697d7ecfb8cdc456447777aaeb8822fe33955b31d7bf9799c7"
+    },
+    {
+      "path": "app/src/main/java/sa/techlight/kitchen/LinkCrypto.java",
+      "original_path": "app/src/main/java/sa/techlight/kitchen/LinkCrypto.java",
+      "sha256": "c31aee455d1a44ab1218ed2156b2c69c7aaf00e0222700e4be59059ffc28b7ec"
+    },
+    {
+      "path": "app/src/main/java/sa/techlight/kitchen/LinkStore.java",
+      "original_path": "app/src/main/java/sa/techlight/kitchen/LinkStore.java",
+      "sha256": "e298d8985323b10a3186db5adcb585a5ded0ea246dbfcd1c49e9d9694a476af4"
+    },
+    {
+      "path": "app/src/main/java/sa/techlight/kitchen/PickupActivity.java",
+      "original_path": "app/src/main/java/sa/techlight/kitchen/PickupActivity.java",
+      "sha256": "7aaafb8fa8ef7e918265e5841e8b575d850ebafc4483253769c68a48a13280c4"
+    },
+    {
+      "path": "app/src/main/java/sa/techlight/kitchen/Session.java",
+      "original_path": "app/src/main/java/sa/techlight/kitchen/Session.java",
+      "sha256": "471251c78dc4f6b101386ad44f72bde55455834826ff6296bd3871b461606d53"
+    },
+    {
+      "path": "app/src/main/java/sa/techlight/kitchen/Ui.java",
+      "original_path": "app/src/main/java/sa/techlight/kitchen/Ui.java",
+      "sha256": "a9abb06fc86eee15814143acafa9e70678653501f1edb893e85f9b558784ba24"
+    },
+    {
+      "path": "app/src/main/res/drawable/ic_app.xml",
+      "original_path": "app/src/main/res/drawable/ic_app.xml",
+      "sha256": "9414ad81313ce50d69b71bcccfd930bd36272d0b3aedaa4f9ef14df3355fb16d"
+    },
+    {
+      "path": "app/src/main/res/drawable-nodpi/techlight_brand_transparent.png",
+      "original_path": "app/src/main/res/drawable-nodpi/techlight_brand_transparent.png",
+      "sha256": "e6d4cda138f5a0497f9842ecdaf28e8c48cb78eaa34a9d680ab3496416f31cbe"
+    },
+    {
+      "path": "app/src/main/res/drawable-nodpi/techlight_mark.png",
+      "original_path": "app/src/main/res/drawable-nodpi/techlight_mark.png",
+      "sha256": "528ff460187b60bffa72ce4237e22001fb4f966a229c378f4d823e8a3ec15587"
+    },
+    {
+      "path": "app/src/main/res/raw/alert_add.wav",
+      "original_path": "app/src/main/res/raw/alert_add.wav",
+      "sha256": "2f7359891a95e0498d6cc34da4b99056e2e3697697d39b578c2d2f912f9e8c6a"
+    },
+    {
+      "path": "app/src/main/res/raw/alert_late.wav",
+      "original_path": "app/src/main/res/raw/alert_late.wav",
+      "sha256": "0fe479ff08a3d929377566b462e67edf11c25225a9dd59b92b2fd320ca41372d"
+    },
+    {
+      "path": "app/src/main/res/raw/alert_new.wav",
+      "original_path": "app/src/main/res/raw/alert_new.wav",
+      "sha256": "07da3e5dd30c678a91ac6f4d653f9621e3ea95df50539aa76bf4165588fb40e0"
+    },
+    {
+      "path": "app/src/main/res/raw/alert_ready.wav",
+      "original_path": "app/src/main/res/raw/alert_ready.wav",
+      "sha256": "8a0706e818742755e26f8b2fe39cf34a913e3c83bb1a6c17dbf1a84bc73b6c89"
+    },
+    {
+      "path": "app/src/main/res/values/colors.xml",
+      "original_path": "app/src/main/res/values/colors.xml",
+      "sha256": "786f3b29de5aeb7ac9497bac13414d1ae27ea4db18ccbf49c0828b23ae9486fb"
+    },
+    {
+      "path": "app/src/main/res/values/strings.xml",
+      "original_path": "app/src/main/res/values/strings.xml",
+      "sha256": "749b3cbf0f0afbd9604f251918cea248315ad462cb9a1e2603e84978741800ff"
+    },
+    {
+      "path": "app/src/main/res/values/styles.xml",
+      "original_path": "app/src/main/res/values/styles.xml",
+      "sha256": "fbf4f0754d197e585ba5af68eaf6d4f11ced24be7b9d28b400a3a740ee615082"
+    },
+    {
+      "path": "app/src/main/res/xml/network_security_config.xml",
+      "original_path": "app/src/main/res/xml/network_security_config.xml",
+      "sha256": "2205559ab9bf8b2d44c0e80484ce98304e0ab50a2d099c51e52c13f23f7a4c32"
+    },
+    {
+      "path": "app/src/main/AndroidManifest.xml",
+      "original_path": "pickup/src/main/AndroidManifest.xml",
+      "sha256": "4a2846dc0b2d7c5851f18f4b9c0576cf73dbcf3b9c73182f307c9a1103a61fa8"
+    }
+  ]
+}

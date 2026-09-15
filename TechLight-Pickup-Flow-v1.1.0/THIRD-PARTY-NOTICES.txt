@@ -1,0 +1,9 @@
+TechLight Kitchen rebuilt application source uses the user's supplied previous project as its starting point for local pairing, QR decoding, models, and catalog support.
+External dependency coordinates:
+com.google.zxing:core:3.5.3 — Apache License 2.0.
+com.neovisionaries:nv-websocket-client:2.14 — Apache License 2.0.
+Consult the upstream libraries' license/notice files when redistributing.
+The four WAV notification tones in res/raw were synthesized for this build.
+TechLight branding was taken from the user's supplied source package.
+No third-party font files are included. The app uses Android system typefaces.
+No production signing key is included in this source delivery.

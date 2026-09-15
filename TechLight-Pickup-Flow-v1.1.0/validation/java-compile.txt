@@ -1,0 +1,11 @@
+Standalone source compile, 6 original Java source files plus generated R.java.
+No other project's source/classes present on classpath.
+warning: [options] bootstrap class path not set in conjunction with -source 8
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+Note: /mnt/data/flow_split_work/projects/TechLight-Pickup-Flow-v1.1.0/app/src/main/java/sa/techlight/kitchen/PickupActivity.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+4 warnings
+
+Exit: 0

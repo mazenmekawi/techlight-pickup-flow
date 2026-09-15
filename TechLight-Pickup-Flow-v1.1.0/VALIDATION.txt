@@ -1,0 +1,38 @@
+Pickup Flow 1.1.0 — standalone source packaging validation
+Date: 2026-09-14
+
+PASS: Source archive SHA-256 matches the Flow handoff: 0e4e56b1247205eb18d2fddc6981383bd2cd3c227e8b60760e8ae26d3e11782c.
+PASS: 6 runtime Java source files copied byte-for-byte from original source.
+PASS: Original app manifest and shared resources copied byte-for-byte.
+PASS: Single Gradle application module :app. No dependency on sibling source directory.
+PASS: Every manifest application/activity class exists in this standalone source.
+PASS: Android resources link and R.java generation with aapt.
+PASS: Standalone javac source compilation with Android API stub and declared external jars; no classes/source from the other project on classpath.
+PASS: JUnit 4 tests. See validation/unit-tests.txt.
+
+Scope
+-----
+The Java package remains sa.techlight.kitchen. The application ID remains sa.techlight.pickup.flow.
+No runtime logic was rewritten. Build layout and test wiring were separated.
+Pickup Flow keeps six required classes and drops unused Kitchen UI/API implementation. Kitchen Flow omits the PickupActivity receiver.
+Resources include the original shared tones and brand assets, some of which may not be used by each app.
+Original SHA-256 per copied source/resource is recorded in SOURCE-ORIGIN.json.
+The four Pickup cryptography test methods were extracted unchanged from original LinkedTests; Kitchen retains all 79 original JVM tests.
+No GitHub write, source upload, APK build/signing or release was performed for this packaging task.
+
+Actual validation toolchain
+---------------------------
+javac 21.0.11
+Source/target bytecode compatibility: Java 8.
+Build tools: /usr/local/lib/android/sdk/build-tools/37.0.0
+Platform: /usr/local/lib/android/sdk/platforms/android-37.2-beta3
+These SDK tools came from the existing uploaded toolchain archive. They are NOT shipped in these project ZIPs.
+The configured Gradle compileSdk remains 35, as in the original source; the available isolated compile check used the uploaded newer API stub noted above.
+Compiler warnings about obsolete source/target 8, deprecated APIs and unchecked operations were preserved in validation logs.
+
+Not performed in this task
+--------------------------
+No clean Gradle/Android Studio build or SDK35-specific build was executed. No new APK, DEX build, installation, emulator session, real TechPro login, LAN two-device test or audio test.
+Gradle wrapper was absent in the source and is not included. Use installed Gradle 8.13 per original BUILD instructions, or generate a wrapper with it.
+The historical docs/original-validation reports apply to the earlier combined handoff, not a new test run of these separate projects.
+No private signing key is included; newly signed builds may not install over an existing differently signed APK.
